@@ -76,7 +76,7 @@ function renderPreview() {
   preview.innerHTML = `<div class="row question-heading"><div class="eyebrow">Предпросмотр · вид ведущего с ответами</div><button type="button" class="secondary compact" id="close-preview">Закрыть</button></div>
     <h2>${escape(quiz.title) || 'Квиз без названия'}</h2>${quiz.questions.map((q,i) => `<section class="card"><p class="eyebrow">Вопрос ${i+1} · ${escape(q.seconds ?? '—')} секунд</p><h3>${escape(q.text) || 'Текст вопроса'}</h3>
       ${safeImage(q.image) ? `<img class="question-image" src="${escape(safeImage(q.image))}" alt="Картинка вопроса ${i+1}" referrerpolicy="no-referrer">` : ''}
-      <div class="grid">${q.options.map((o,j) => `<div class="answer answer-${j} ${q.correct === j ? 'correct' : ''}"><b>${letters[j]}</b><span>${escape(o) || 'Вариант ответа'}${q.correct === j ? ' ✓' : ''}</span></div>`).join('')}</div>
+      <div class="grid">${q.options.map((o,j) => `<div class="answer answer-${j} ${q.correct === j ? 'correct' : ''}"><b>${letters[j]}</b><span class="answer-copy"><span>${escape(o) || 'Вариант ответа'}</span>${q.correct === j ? '<small class="correct-label">✓ Правильный ответ</small>' : ''}</span></div>`).join('')}</div>
       ${q.correct === null ? '<p class="muted">Правильный ответ пока не выбран.</p>' : ''}</section>`).join('')}`;
   preview.querySelector('#close-preview').addEventListener('click', () => togglePreview(false));
   preview.querySelectorAll('img').forEach(img => img.addEventListener('error', () => {

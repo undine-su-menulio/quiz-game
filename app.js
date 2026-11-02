@@ -1,9 +1,11 @@
 import {validateQuiz, safeImage} from './quiz-format.js';
+import {createGameEffects} from './game-effects.js';
 
 const app = document.querySelector('#app');
 const connection = document.querySelector('#connection');
 const letters = ['A', 'B', 'C', 'D'];
 const config = window.QUIZ_CONFIG || {};
+const effects = createGameEffects({mount:app});
 let db, route, state, renderKey = '', polling = false, busy = false, syncSequence = 0;
 let deadlineAt = 0, clockAnchor = 0, clockRemaining = 0, lastGood = 0;
 
@@ -173,8 +175,9 @@ function downloadResults() {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function updateClock() {
-  if (!state || state.phase !== 'question') return;
+  if (!state || state.phase !== 'question') { effects.update(state, route?.mode); return; }
   const remaining = Math.max(0, clockRemaining - (performance.now() - clockAnchor));
+  effects.update(state, route?.mode, remaining);
   const beforeStart = remaining - state.seconds*1000;
   const timer = document.querySelector('#timer'), bar = document.querySelector('#time-bar');
   if (timer) timer.textContent = beforeStart > 0 ? `Старт через ${Math.ceil(beforeStart/1000)}` : `${Math.ceil(remaining/1000)} с`;
@@ -235,6 +238,7 @@ async function poll() {
 }
 function navigate() {
   route = parseRoute(); state = null; renderKey = ''; connection.textContent = '';
+  effects.update(null, route.mode);
   if (route.mode === 'create') createPage();
   else if (route.mode === 'home' || route.mode === 'join') home();
   else if (['host','screen','play'].includes(route.mode) && roomCode(route.code)) {

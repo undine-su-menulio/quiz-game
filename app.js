@@ -103,7 +103,7 @@ function leaderboard(s) {
     `<li class="rank ${p.id === s.playerId ? 'self' : ''}"><span><b>${i+1}.</b> ${escape(p.nickname)}${p.id === s.playerId ? ' · ты' : ''}</span><span><b>${p.points}</b> <small>баллов · ${p.correct} ✓</small></span></li>`).join('')}</ol></div>`;
 }
 function choices(s) {
-  return `<div class="grid">${(s.options || []).map((text,i) => `<div class="answer answer-${i} ${s.phase === 'reveal' ? (s.correct === i ? 'correct' : 'wrong') : ''}"><b>${letters[i]}</b><span>${escape(text)}</span></div>`).join('')}</div>`;
+  return `<div class="grid">${(s.options || []).map((text,i) => `<div class="answer answer-${i} ${s.phase === 'reveal' ? (s.correct === i ? 'correct' : 'wrong') : ''}"><b>${letters[i]}</b><span class="answer-copy"><span>${escape(text)}</span>${s.phase === 'reveal' && s.correct === i ? '<small class="correct-label">✓ Правильный ответ</small>' : ''}</span></div>`).join('')}</div>`;
 }
 function hostControls(s) {
   if (route.mode !== 'host') return '';

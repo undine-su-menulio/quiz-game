@@ -72,7 +72,7 @@ input[type=file] { font-size: .85rem; }
 .answer-1 { background: var(--accent); color: #ffffff; }
 .answer-2 { background: var(--coral); }
 .answer-3 { background: var(--peach); }
-.answer.correct { outline: 3px solid #000000; outline-offset: 4px; box-shadow: inset 0 0 0 3px #ffffff; }
+.answer.correct { outline: none; box-shadow: none; }
 .answer.wrong { opacity: .45; }
 .phone-answers .answer { min-height: 145px; justify-content: center; }
 .phone-answers .answer b { font-size: 3rem; }

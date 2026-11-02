@@ -5,7 +5,7 @@ export function createGameEffects({mount, makeAudio = () => new Audio(new URL('.
   mount.before(panel);
   const button = panel.querySelector('[data-music]'), volume = panel.querySelector('input'), status = panel.querySelector('[data-audio-status]');
   let audio, enabled = false, wantsMusic = false, playing = false, pending = false, available = false;
-  let currentRoom = '', currentQuestion = '', celebrated = '', cancelCelebration = () => {};
+  let currentRoom = '', celebrated = '', cancelCelebration = () => {};
 
   function label() {
     button.textContent = enabled ? '♫ Выключить музыку' : '♫ Включить музыку';
@@ -35,7 +35,7 @@ export function createGameEffects({mount, makeAudio = () => new Audio(new URL('.
         audio = makeAudio(); audio.loop = true; audio.preload = 'none'; audio.volume = Number(volume.value)/100;
         audio.addEventListener('error', () => failure());
       }
-      status.textContent = 'Музыка играет только во время ответов. При показе результатов она остановится.';
+      status.textContent = 'Музыка начнётся со стартом игры и будет звучать без пауз, включая рейтинги. Выключить её можно этой кнопкой.';
       // Вызов play непосредственно из клика разрешает последующие запуски в этой вкладке.
       play(true);
     } else { stop(); status.textContent = 'Музыка выключена в этой вкладке.'; }
@@ -43,15 +43,16 @@ export function createGameEffects({mount, makeAudio = () => new Audio(new URL('.
   });
   volume.addEventListener('input', () => { if (audio) audio.volume = Number(volume.value)/100; });
 
-  function update(s, mode, remaining = 0) {
+  function update(s, mode) {
     available = Boolean(s && ['host','screen'].includes(mode)); panel.hidden = !available;
-    wantsMusic = available && s.phase === 'question' && remaining > 0 && remaining <= s.seconds*1000;
-    const question = s ? `${s.code}/${s.questionIndex}` : '';
-    if (question !== currentQuestion) { stop(); if (audio) audio.currentTime = 0; currentQuestion = question; }
+    wantsMusic = available && s.phase !== 'lobby';
+    const room = s?.code || '';
+    if (room !== currentRoom) {
+      stop(); if (audio) audio.currentTime = 0;
+      cancelCelebration(); celebrated = ''; currentRoom = room;
+    }
     if (wantsMusic && enabled) play();
     else if (!pending || !enabled || !available) stop();
-    const room = s?.code || '';
-    if (room !== currentRoom) { cancelCelebration(); celebrated = ''; currentRoom = room; }
     if (!s || s.phase !== 'finished') { cancelCelebration(); return; }
     if (celebrated !== room) {
       celebrated = room;

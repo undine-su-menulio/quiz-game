@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#01c89d">
+  <title>Конструктор квизов · Квиз-комната</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header><a href="./">✦ Квиз-комната</a><a class="header-link" href="./#create">Перейти к игре ↗</a></header>
+  <main>
+    <div class="editor-intro"><div class="eyebrow">Мастерская вопросов</div><h1>Идеи — твои.<br>JSON — наш.</h1>
+      <p class="muted">Собери квиз в удобной форме и скачай готовый файл для игры. Без регистрации и подключения к Supabase.</p></div>
+    <div class="editor-toolbar"><div class="row"><div class="row">
+      <button type="submit" form="editor-form">Скачать JSON ↓</button>
+      <button type="button" class="secondary" id="preview-toggle" aria-expanded="false" aria-controls="preview">Предпросмотр</button>
+      <button type="button" class="secondary" id="import-button">Открыть JSON</button>
+    </div><span class="pill" id="question-count">1 вопрос</span></div>
+    <p class="muted" id="save-status" role="status">Черновик сохраняется в этом браузере.</p></div>
+    <p id="editor-status" role="status" aria-live="polite"></p>
+    <section id="preview" class="card preview-panel" aria-label="Предпросмотр квиза" hidden></section>
+    <form id="editor-form">
+      <div class="card"><label for="quiz-title">Название квиза</label><input id="quiz-title" name="title" maxlength="120" placeholder="Например, Большое космическое путешествие" required>
+        <p class="muted"><small>У каждого вопроса четыре варианта. Отметь кружком один правильный ответ — номера в JSON подставятся автоматически.</small></p></div>
+      <div id="questions"></div>
+      <div class="row"><button type="button" id="add-question" class="secondary">＋ Добавить вопрос</button><button type="button" id="new-quiz" class="secondary danger">Новый пустой квиз</button></div>
+    </form>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <details class="card"><summary>Как добавить картинку и запустить игру?</summary>
+      <p>Вставь прямую HTTPS-ссылку на картинку или путь вида <code>images/photo.jpg</code>. Во втором случае загрузи сам файл в папку images своего сайта. Картинка не встраивается в JSON.</p>
+      <p>После скачивания открой «Перейти к игре», выбери полученный JSON и создай комнату. Собственные файлы с правильными ответами не загружай в публичный репозиторий GitHub.</p>
+      <p class="muted">Черновик хранится только в этом браузере. Скачанный файл — твоя резервная копия. Смена браузера или очистка его данных удалит черновик. Для шрифта и внешних картинок нужен интернет.</p>
+    </details>
+  </main>
+  <noscript>Для конструктора необходимо включить JavaScript.</noscript>
+  <script type="module" src="editor.js"></script>
+</body>
+</html>

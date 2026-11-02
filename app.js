@@ -1,3 +1,5 @@
+import {validateQuiz, safeImage} from './quiz-format.js';
+
 const app = document.querySelector('#app');
 const connection = document.querySelector('#connection');
 const letters = ['A', 'B', 'C', 'D'];
@@ -10,13 +12,6 @@ const pageUrl = hash => `${location.href.split('#')[0]}#${hash}`;
 const roomCode = value => /^\d{6}$/.test(value || '');
 const readRoom = code => {
   try { return JSON.parse(localStorage.getItem(`quiz-host-${code}`) || 'null'); } catch { return null; }
-};
-const safeImage = value => {
-  if (!value) return '';
-  try {
-    const url = new URL(value, location.href.split('#')[0]);
-    return url.protocol === 'https:' || (url.protocol === 'http:' && url.origin === location.origin) ? url.href : '';
-  } catch { return ''; }
 };
 
 function errorMessage(error) {
@@ -47,7 +42,8 @@ function home() {
       <label>Код комнаты<input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" required value="${escape(route.code)}"></label>
       <label>Твоё имя<input name="nickname" maxlength="24" autocomplete="nickname" placeholder="Например, Мария" required></label>
       <button>Войти в игру →</button></form>
-    <a class="button secondary" href="#create">Я ведущий — создать квиз</a></div>`;
+    <div class="stack"><a class="button secondary" href="#create">Я ведущий — создать квиз</a>
+    <a class="text-link" href="editor.html">✎ Конструктор вопросов</a></div></div>`;
   document.querySelector('#join-form').addEventListener('submit', async event => {
     event.preventDefault(); const button = event.target.querySelector('button'); button.disabled = true;
     try {
@@ -58,31 +54,12 @@ function home() {
   });
 }
 
-export function validateQuiz(value) {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('В файле должен быть JSON-объект.');
-  if (typeof value.title !== 'string' || !value.title.trim() || value.title.length > 120) throw new Error('Нужно название title длиной до 120 символов.');
-  if (!Array.isArray(value.questions) || value.questions.length < 1 || value.questions.length > 100) throw new Error('В questions должно быть от 1 до 100 вопросов.');
-  const questions = value.questions.map((q, index) => {
-    const fail = text => { throw new Error(`Вопрос ${index + 1}: ${text}`); };
-    if (!q || typeof q.text !== 'string' || !q.text.trim() || q.text.length > 1000) fail('нужен текст text длиной до 1000 символов.');
-    if (!Array.isArray(q.options) || q.options.length !== 4 || q.options.some(o => typeof o !== 'string' || !o.trim() || o.length > 250)) fail('options — ровно четыре непустые строки, до 250 символов каждая.');
-    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct > 3) fail('correct — номер правильного ответа от 0 до 3.');
-    if (!Number.isInteger(q.seconds) || q.seconds < 5 || q.seconds > 180) fail('seconds — целое число от 5 до 180.');
-    if (q.image !== undefined && typeof q.image !== 'string') fail('image — строка со ссылкой на картинку.');
-    const image = safeImage(q.image);
-    if (q.image && (!image || image.length > 2000)) fail('нужна корректная HTTPS-ссылка или относительный путь к картинке.');
-    return {text:q.text.trim(),options:q.options.map(o => o.trim()),correct:q.correct,seconds:q.seconds,image};
-  });
-  const quiz = {title:value.title.trim(),questions};
-  if (new TextEncoder().encode(JSON.stringify(quiz)).length > 280000) throw new Error('Квиз слишком большой. Ограничение: 280 КБ после обработки.');
-  return quiz;
-}
-
 function createPage() {
   app.innerHTML = `<div class="narrow"><div class="eyebrow">Пульт ведущего</div><h1>Новая игра</h1>
     <p class="muted">Загрузи JSON-файл с вопросами. Картинки указываются ссылками, не вставляются в сам файл.</p>
     <form id="create-form" class="card stack"><label>Файл квиза<input name="quiz" type="file" accept=".json,application/json" required></label>
     <div id="file-summary" class="muted" role="status"></div><button>Создать комнату →</button></form>
+    <p><a class="button secondary" href="editor.html">✎ Создать вопросы в конструкторе</a></p>
     <p><a href="example-quiz.json" download>Скачать пример квиза</a></p>
     <p class="muted">В correct используются номера: 0 = A, 1 = B, 2 = C, 3 = D. Таймер — от 5 до 180 секунд.</p>
     <details><summary>Мои комнаты в этом браузере</summary><div id="saved-rooms"></div></details></div>`;
